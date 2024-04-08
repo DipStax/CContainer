@@ -5,6 +5,8 @@
 
 #include "CContainer/Type.h"
 
+#define VEC_RSIZE(_a, _v) ((_a) * (_v)->_objsize)
+
 typedef struct Vector_s
 {
     void *data;
@@ -27,5 +29,8 @@ Type Vector_at(Vector *_vec, size_t _it);
 
 void Vector_clear(Vector *_vec);
 void Vector_erase(Vector *_vec, size_t _it);
+
+void priv_Vector_lshift(Vector *_vec, size_t _offset, size_t _it);
+void priv_Vector_rshift(Vector *_vec, size_t _offset, size_t _it);
 
 #endif
