@@ -16,7 +16,7 @@ static void no_destroy(Type _value)
 //     std::free(_value);
 // }
 
-class IteratorList_test : public testing::Test
+class IteratorList_test : public ::testing::Test
 {
     protected:
         IteratorList_test()
@@ -54,7 +54,7 @@ TEST_F(IteratorList_test, custom_destroy)
     IteratorList_destroy(node, &no_destroy);
 }
 
-class priv_IteratorList_test : public testing::Test
+class priv_IteratorList_test : public ::testing::Test
 {
     protected:
         priv_IteratorList_test()

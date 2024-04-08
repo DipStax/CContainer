@@ -16,7 +16,7 @@ static void destroy(Type _value)
     std::free(_value);
 }
 
-class List_test : public testing::Test
+class List_test : public ::testing::Test
 {
     protected:
 
