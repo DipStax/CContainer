@@ -24,12 +24,14 @@ void Vector_resize(Vector *_vec, size_t _size)
 {
     if (_vec->_rsize < _size) {
         Vector_reserve(_vec, _size);
+        _vec->size = _size;
         return;
     } else if (_vec->_rsize > _size) {
         for (size_t it = _vec->_rsize; it > _size; it--)
             _vec->_dtor(_vec->data + VEC_RSIZE(it, _vec));
         _vec->data = realloc(_vec->data, VEC_RSIZE(_size, _vec));
         _vec->size = min(_size, _vec->size);
+        _vec->_rsize = _size;
     }
 }
 
