@@ -31,7 +31,6 @@ void Vector_resize(Vector *_vec, size_t _size)
             _vec->_dtor(_vec->data + VEC_RSIZE(it, _vec));
         _vec->data = realloc(_vec->data, VEC_RSIZE(_size, _vec));
         _vec->size = min(_size, _vec->size);
-        _vec->_rsize = _size;
     }
 }
 

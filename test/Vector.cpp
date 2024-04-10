@@ -1,4 +1,5 @@
-#include <malloc.h>
+#include <cstring>
+// #include <malloc.h>
 
 #include <gtest/gtest.h>
 
@@ -77,9 +78,9 @@ TEST_F(Vector_empty_memory_test, resize_double_lower)
     ASSERT_EQ(vec->size, size);
     // ASSERT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
 
-    Vector_resize(vec, size);
+    Vector_resize(vec, second_size);
 
-    EXPECT_EQ(vec->_rsize, second_size);
+    EXPECT_EQ(vec->_rsize, size);
     EXPECT_EQ(vec->size, second_size);
     // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * second_size);
 }
@@ -95,7 +96,7 @@ TEST_F(Vector_empty_memory_test, resize_double_higher)
     ASSERT_EQ(vec->size, size);
     // ASSERT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
 
-    Vector_resize(vec, size);
+    Vector_resize(vec, second_size);
 
     EXPECT_EQ(vec->_rsize, second_size);
     EXPECT_EQ(vec->size, second_size);
