@@ -1,7 +1,8 @@
 #include <cstring>
-// #include <malloc.h>
 
 #include <gtest/gtest.h>
+
+#include "Test.hpp"
 
 extern "C" {
     #include "CContainer/Vector.h"
@@ -25,7 +26,6 @@ TEST(Vector_test, create)
     std::free(vec);
 }
 
-// All the test can certainly compacted with multi entrys
 class Vector_empty_test : public ::testing::TestWithParam<std::tuple<size_t, size_t>>
 {
     protected:
@@ -43,6 +43,20 @@ class Vector_empty_test : public ::testing::TestWithParam<std::tuple<size_t, siz
 
         Vector *vec;
 };
+
+TEST_F(Vector_empty_test, at_oor)
+{
+    ASSERT_EXIT({ Vector_at(vec, 0); exit(0); },
+        EXIT_WITH_SEGV,
+        ".*");
+}
+
+TEST_F(Vector_empty_test, erase_oor)
+{
+    ASSERT_EXIT({ Vector_erase(vec, 0); exit(0); },
+        EXIT_WITH_SEGV,
+        ".*");
+}
 
 TEST_P(Vector_empty_test, resize)
 {
