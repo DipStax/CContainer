@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "CContainer/Vector.h"
 #include "CContainer/Utils.h"
@@ -69,6 +70,8 @@ void Vector_prepend(Vector *_vec, Type _val)
 
 Type Vector_at(Vector *_vec, size_t _it)
 {
+    if (_it >= _vec->size)
+        raise(SIGSEGV);
     return _vec->data + _vec->_objsize * _it;
 }
 
@@ -81,6 +84,9 @@ void Vector_clear(Vector *_vec)
 void Vector_erase(Vector *_vec, size_t _it)
 {
     size_t itpos = VEC_RSIZE(_it, _vec);
+
+    if (_it >= _vec->size)
+        raise(SIGSEGV);
     _vec->_dtor(_vec->data + itpos);
     priv_Vector_lshift(_vec, _it, 1);
     _vec->size--;

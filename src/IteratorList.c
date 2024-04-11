@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <signal.h>
 
 #include "CContainer/IteratorList.h"
 #include "CContainer/Utils.h"
@@ -23,7 +24,7 @@ IteratorList *priv_IteratorList_at(IteratorList *_node, size_t _it)
     if (_it != 0)
         return priv_IteratorList_at(_node->next, --_it);
     if (!_node)
-        _node->data = NULL;
+        raise(SIGSEGV);
     return _node;
 }
 
