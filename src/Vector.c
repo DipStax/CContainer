@@ -29,7 +29,6 @@ void Vector_resize(Vector *_vec, size_t _size)
     } else if (_vec->_rsize > _size) {
         for (size_t it = _vec->_rsize; it > _size; it--)
             _vec->_dtor(_vec->data + VEC_RSIZE(it, _vec));
-        _vec->data = realloc(_vec->data, VEC_RSIZE(_size, _vec));
         _vec->size = min(_size, _vec->size);
     }
 }
@@ -83,7 +82,8 @@ void Vector_erase(Vector *_vec, size_t _it)
 {
     size_t itpos = VEC_RSIZE(_it, _vec);
     _vec->_dtor(_vec->data + itpos);
-    priv_Vector_lshift(_vec, itpos, _vec->size - _it - 1);
+    priv_Vector_lshift(_vec, _it, 1);
+    _vec->size--;
 }
 
 void priv_Vector_lshift(Vector *_vec, size_t _offset, size_t _it)
