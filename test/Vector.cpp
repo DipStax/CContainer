@@ -17,143 +17,80 @@ TEST(Vector_test, create)
     Vector *vec = Vector_create(sizeof(size_t), &no_destroy);
 
     ASSERT_TRUE(vec != NULL);
-    EXPECT_EQ(vec->_objsize, sizeof(size_t));
+    EXPECT_EQ(vec->size, 0);
+    EXPECT_EQ(vec->_rsize, 0);
+    EXPECT_TRUE(vec->data == NULL);
+    ASSERT_EQ(vec->_objsize, sizeof(size_t));
     ASSERT_TRUE(vec->_dtor == &no_destroy);
-    Vector_destroy(vec);
+    std::free(vec);
 }
 
 // All the test can certainly compacted with multi entrys
-class Vector_empty_memory_test : public ::testing::Test
+class Vector_empty_test : public ::testing::TestWithParam<std::tuple<size_t, size_t>>
 {
     protected:
-        Vector_empty_memory_test()
+        Vector_empty_test()
         {
             vec = Vector_create(sizeof(size_t), &no_destroy);
         }
 
-        ~Vector_empty_memory_test()
+        ~Vector_empty_test()
         {
-            Vector_destroy(vec);
+            if (vec->data != NULL)
+                std::free(vec->data);
+            std::free(vec);
         }
 
         Vector *vec;
 };
 
-TEST_F(Vector_empty_memory_test, resize_empty)
+TEST_P(Vector_empty_test, resize)
 {
-    static constexpr const size_t size = 5;
+    const size_t first_size = std::get<0>(GetParam());
+    const size_t second_size = std::get<1>(GetParam());
 
-    Vector_resize(vec, size);
+    Vector_resize(vec, first_size);
 
-    EXPECT_EQ(vec->_rsize, size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-}
-
-TEST_F(Vector_empty_memory_test, resize_double)
-{
-    static constexpr const size_t size = 5;
-    static constexpr const size_t second_size = 5;
-
-    Vector_resize(vec, size);
-
-    ASSERT_EQ(vec->_rsize, size);
-    ASSERT_EQ(vec->size, size);
-    // ASSERT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-
-    Vector_resize(vec, size);
-
-    EXPECT_EQ(vec->_rsize, second_size);
-    EXPECT_EQ(vec->size, second_size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * second_size);
-}
-
-TEST_F(Vector_empty_memory_test, resize_double_lower)
-{
-    static constexpr const size_t size = 5;
-    static constexpr const size_t second_size = 3;
-
-    Vector_resize(vec, size);
-
-    ASSERT_EQ(vec->_rsize, size);
-    ASSERT_EQ(vec->size, size);
-    // ASSERT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
+    ASSERT_EQ(vec->_rsize, first_size);
+    ASSERT_EQ(vec->size, first_size);
+    EXPECT_TRUE(vec->data != NULL);
 
     Vector_resize(vec, second_size);
 
-    EXPECT_EQ(vec->_rsize, size);
-    EXPECT_EQ(vec->size, second_size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * second_size);
+    if (first_size >= second_size) {
+        ASSERT_EQ(vec->_rsize, first_size);
+        ASSERT_EQ(vec->size, second_size);
+    } else {
+        ASSERT_EQ(vec->_rsize, second_size);
+        ASSERT_EQ(vec->size, second_size);
+    }
+    EXPECT_TRUE(vec->data != NULL);
 }
 
-TEST_F(Vector_empty_memory_test, resize_double_higher)
+TEST_P(Vector_empty_test, reserve)
 {
-    static constexpr const size_t size = 5;
-    static constexpr const size_t second_size = 7;
+    const size_t first_size = std::get<0>(GetParam());
+    const size_t second_size = std::get<1>(GetParam());
 
-    Vector_resize(vec, size);
+    Vector_reserve(vec, first_size);
 
-    ASSERT_EQ(vec->_rsize, size);
-    ASSERT_EQ(vec->size, size);
-    // ASSERT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-
-    Vector_resize(vec, second_size);
-
-    EXPECT_EQ(vec->_rsize, second_size);
-    EXPECT_EQ(vec->size, second_size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * second_size);
-}
-
-TEST_F(Vector_empty_memory_test, reserve_empty)
-{
-    static constexpr const size_t size = 5;
-
-    Vector_reserve(vec, size);
-
-    EXPECT_EQ(vec->_rsize, size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-}
-
-TEST_F(Vector_empty_memory_test, reserve_double)
-{
-    static constexpr const size_t size = 5;
-    static constexpr const size_t second_size = 5;
-
-    Vector_reserve(vec, size);
-
-    EXPECT_EQ(vec->_rsize, size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
+    ASSERT_EQ(vec->_rsize, first_size);
+    EXPECT_EQ(vec->size, 0);
+    EXPECT_TRUE(vec->data != NULL);
 
     Vector_reserve(vec, second_size);
-    EXPECT_EQ(vec->_rsize, second_size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * second_size);
+
+    if (first_size >= second_size)
+        ASSERT_EQ(vec->_rsize, first_size);
+    else
+        ASSERT_EQ(vec->_rsize, second_size);
+    EXPECT_TRUE(vec->data != NULL);
+    EXPECT_EQ(vec->size, 0);
 }
 
-TEST_F(Vector_empty_memory_test, reserve_double_low)
-{
-    static constexpr const size_t size = 5;
-    static constexpr const size_t second_size = 3;
-
-    Vector_reserve(vec, size);
-
-    EXPECT_EQ(vec->_rsize, size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-
-    Vector_reserve(vec, second_size);
-    EXPECT_EQ(vec->_rsize, size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-}
-
-TEST_F(Vector_empty_memory_test, reserve_double_higher)
-{
-    static constexpr const size_t size = 5;
-    static constexpr const size_t second_size = 7;
-
-    Vector_reserve(vec, size);
-
-    EXPECT_EQ(vec->_rsize, size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-
-    Vector_reserve(vec, second_size);
-    EXPECT_EQ(vec->_rsize, second_size);
-    // EXPECT_EQ(malloc_usable_size(vec->data), sizeof(size_t) * size);
-}
+INSTANTIATE_TEST_SUITE_P(Vector, Vector_empty_test,
+    ::testing::Combine(
+        testing::Values(5, 8, 10),
+        testing::Values(3, 8, 15)
+    )
+);
