@@ -36,8 +36,7 @@ class Vector_empty_test : public ::testing::TestWithParam<std::tuple<size_t, siz
 
         ~Vector_empty_test()
         {
-            if (vec->data != NULL)
-                std::free(vec->data);
+            std::free(vec->data);
             std::free(vec);
         }
 
@@ -69,15 +68,20 @@ TEST_P(Vector_empty_test, resize)
     ASSERT_EQ(vec->size, first_size);
     EXPECT_TRUE(vec->data != NULL);
 
+    for (size_t it = 0; it < first_size; it++)
+        ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
+
     Vector_resize(vec, second_size);
 
-    if (first_size >= second_size) {
-        ASSERT_EQ(vec->_rsize, first_size);
-        ASSERT_EQ(vec->size, second_size);
-    } else {
-        ASSERT_EQ(vec->_rsize, second_size);
-        ASSERT_EQ(vec->size, second_size);
-    }
+    size_t iteration = 0;
+    ASSERT_EQ(vec->size, second_size);
+    if (first_size >= second_size)
+        iteration = first_size;
+    else
+        iteration = second_size;
+    ASSERT_EQ(vec->_rsize, iteration);
+    for (size_t it = 0; it < iteration; it++)
+        ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
     EXPECT_TRUE(vec->data != NULL);
 }
 
@@ -91,15 +95,22 @@ TEST_P(Vector_empty_test, reserve)
     ASSERT_EQ(vec->_rsize, first_size);
     EXPECT_EQ(vec->size, 0);
     EXPECT_TRUE(vec->data != NULL);
+    for (size_t it = 0; it < first_size; it++)
+        ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
 
     Vector_reserve(vec, second_size);
 
-    if (first_size >= second_size)
-        ASSERT_EQ(vec->_rsize, first_size);
-    else
-        ASSERT_EQ(vec->_rsize, second_size);
-    EXPECT_TRUE(vec->data != NULL);
+    size_t iteration = 0;
+
     EXPECT_EQ(vec->size, 0);
+    EXPECT_TRUE(vec->data != NULL);
+    if (first_size >= second_size)
+        iteration = first_size;
+    else
+        iteration = second_size;
+    ASSERT_EQ(vec->_rsize, iteration);
+    for (size_t it = 0; it < iteration; it++)
+        ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
 }
 
 INSTANTIATE_TEST_SUITE_P(Vector, Vector_empty_test,
@@ -108,3 +119,84 @@ INSTANTIATE_TEST_SUITE_P(Vector, Vector_empty_test,
         testing::Values(3, 8, 15)
     )
 );
+
+class Vector_stock_test : public ::testing::Test
+{
+    protected:
+        Vector_stock_test()
+        {
+            vec = Vector_create(sizeof(size_t), &no_destroy);
+
+            value1 = std::malloc(sizeof(size_t));
+            std::memcpy(value1, &literal_value1, sizeof(size_t));
+
+            value2 = std::malloc(sizeof(size_t));
+            std::memcpy(value2, &literal_value2, sizeof(size_t));
+        }
+
+        virtual ~Vector_stock_test()
+        {
+            std::free(vec->data);
+            std::free(vec);
+            std::free(value1);
+            std::free(value2);
+        }
+
+        Vector *vec;
+
+        Type value1;
+        Type value2;
+
+        static constexpr size_t literal_value1 = 128;
+        static constexpr size_t literal_value2 = 256;
+};
+
+
+TEST_F(Vector_stock_test, append)
+{
+    Vector_append(vec, value1);
+
+    EXPECT_EQ(vec->size, 1);
+    ASSERT_EQ(vec->_rsize, 1);
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
+
+    Vector_append(vec, value2);
+
+    EXPECT_EQ(vec->size, 2);
+    ASSERT_EQ(vec->_rsize, 2);
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), literal_value2);
+}
+
+TEST_F(Vector_stock_test, prepend)
+{
+    Vector_append(vec, value1);
+
+    EXPECT_EQ(vec->size, 1);
+    ASSERT_EQ(vec->_rsize, 1);
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
+
+    Vector_append(vec, value2);
+
+    EXPECT_EQ(vec->size, 2);
+    ASSERT_EQ(vec->_rsize, 2);
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), literal_value2);
+}
+
+class Vector_access_test : public Vector_stock_test
+{
+    protected:
+        void SetUp() override
+        {
+            Vector_append(vec, &value1);
+            Vector_append(vec, &value2);
+        }
+};
+
+TEST_F(Vector_access_test, at)
+{
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
+
+    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), literal_value2);
+}

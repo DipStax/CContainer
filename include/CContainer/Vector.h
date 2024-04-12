@@ -7,6 +7,9 @@
 
 #define VEC_RSIZE(_a, _v) ((_a) * (_v)->_objsize)
 
+#define VEC_AT(_v, _t, _i) ((_t *)Vector_at(_v, _i))
+#define VEC_AT_VAL(_v, _t, _i) (*VEC_AT(_v, _t, _i))
+
 typedef struct Vector_s
 {
     void *data;

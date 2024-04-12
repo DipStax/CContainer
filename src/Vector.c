@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <stdio.h>
 
 #include "CContainer/Vector.h"
 #include "CContainer/Utils.h"
@@ -55,17 +56,18 @@ void Vector_append(Vector *_vec, Type _val)
 {
     if (_vec->size == _vec->_rsize)
         Vector_resize(_vec, _vec->size + 1);
-    memcpy(_vec->data + VEC_RSIZE(_vec->size, _vec), _val, _vec->_objsize);
-    _vec->size++;
+    else
+        _vec->size++;
+    memcpy(_vec->data + VEC_RSIZE(_vec->size - 1, _vec), _val, _vec->_objsize);
 }
 
 void Vector_prepend(Vector *_vec, Type _val)
 {
+    _vec->size++;
     if (_vec->size == _vec->_rsize)
-        Vector_resize(_vec, _vec->size + 1);
+        Vector_resize(_vec, _vec->size);
     priv_Vector_lshift(_vec, 0, _vec->size);
     memcpy(_vec->data, _val, _vec->_objsize);
-    _vec->size++;
 }
 
 Type Vector_at(Vector *_vec, size_t _it)
