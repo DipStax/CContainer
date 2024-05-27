@@ -6,6 +6,7 @@
 
 extern "C" {
     #include "CContainer/Vector.h"
+    #include "CContainer/Utils.h"
 }
 
 static void no_destroy(Type _value)
@@ -127,11 +128,8 @@ class Vector_stock_test : public ::testing::Test
         {
             vec = Vector_create(sizeof(size_t), &no_destroy);
 
-            value1 = std::malloc(sizeof(size_t));
-            (*(size_t *)(value1)) = literal_value1;
-
-            value2 = std::malloc(sizeof(size_t));
-            (*(size_t *)(value2)) = literal_value2;
+            value1 = ALLOC_HEAP(size_t, literal_value1);
+            value2 = ALLOC_HEAP(size_t, literal_value2);
         }
 
         void TearDown() override
@@ -154,12 +152,10 @@ class Vector_stock_test : public ::testing::Test
 
 TEST_F(Vector_stock_test, append)
 {
-    printf("here %p\n", vec);
     Vector_append(vec, value1);
 
     EXPECT_EQ(vec->size, 1);
     ASSERT_EQ(vec->_rsize, 1);
-    std::cout << "here" << std::endl;
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
 
     Vector_append(vec, value2);
@@ -186,14 +182,35 @@ TEST_F(Vector_stock_test, prepend)
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), literal_value2);
 }
 
-class Vector_access_test : public Vector_stock_test
+class Vector_access_test : public ::testing::Test
 {
     protected:
         void SetUp() override
         {
-            Vector_append(vec, &value1);
-            Vector_append(vec, &value2);
+            vec = Vector_create(sizeof(size_t), &no_destroy);
+
+            value1 = ALLOC_HEAP(size_t, literal_value1);
+            value2 = ALLOC_HEAP(size_t, literal_value2);
+
+            Vector_append(vec, value1);
+            Vector_append(vec, value2);
         }
+
+        void TearDown() override
+        {
+            std::free(vec->data);
+            std::free(vec);
+            std::free(value1);
+            std::free(value2);
+        }
+
+        Vector *vec;
+
+        Type value1;
+        Type value2;
+
+        static constexpr size_t literal_value1 = 128;
+        static constexpr size_t literal_value2 = 256;
 };
 
 TEST_F(Vector_access_test, at)
@@ -203,21 +220,31 @@ TEST_F(Vector_access_test, at)
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), literal_value2);
 }
 
-class Vector_filled_test : public Vector_access_test
+class Vector_filled_test : public ::testing::Test
 {
     protected:
         void SetUp() override
         {
             vec = Vector_create(sizeof(size_t), &no_destroy);
 
-            value1 = std::malloc(sizeof(size_t));
-            (*(size_t *)(value1)) = literal_value1;
+            std::cout << "Vector_filled_test Setup -- start" << std::endl;
 
-            value2 = std::malloc(sizeof(size_t));
-            (*(size_t *)(value2)) = literal_value2;
+            value1 = ALLOC_HEAP(size_t, literal_value1);
+            value2 = ALLOC_HEAP(size_t, literal_value2);
 
             Vector_append(vec, value1);
             Vector_append(vec, value2);
+
+            std::cout << "Vector_filled_test Setup -- end" << std::endl;
+            std::cout << vec->size << std::endl;
+        }
+
+        void TearDown() override
+        {
+            std::cout << "TearDown -- start" << std::endl;
+            std::free(vec->data);
+            std::free(vec);
+            std::cout << "TearDown -- end" << std::endl;
         }
 
         Vector *vec;
@@ -234,7 +261,7 @@ TEST_F(Vector_filled_test, clear)
     Vector_clear(vec);
 
     ASSERT_EQ(vec->size, 0);
-    ASSERT_EQ(vec->_rsize, 1);
+    ASSERT_EQ(vec->_rsize, 2);
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), 0);
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), 0);
