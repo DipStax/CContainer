@@ -100,7 +100,6 @@ void Vector_erase(Vector *_vec, size_t _it)
         printf("raise %zu %zu\n", _it, _vec->size);
         raise(SIGSEGV);
     }
-    printf("dtor = %p\n", _vec->_dtor);
     _vec->_dtor(_vec->data + itpos);
     priv_Vector_rshift(_vec, _it, 1);
     _vec->size--;

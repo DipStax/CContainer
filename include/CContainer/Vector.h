@@ -25,6 +25,7 @@ void Vector_destroy(Vector *_vec);
 
 void Vector_resize(Vector *_vec, size_t size);
 void Vector_reserve(Vector *_vec, size_t _size);
+void Vector_fitreserve(Vector *_vec);
 
 void Vector_append(Vector *_vec, Type _val);
 void Vector_prepend(Vector *_vec, Type _val);
@@ -34,7 +35,6 @@ Type Vector_at(Vector *_vec, size_t _it);
 
 void Vector_clear(Vector *_vec);
 void Vector_erase(Vector *_vec, size_t _it);
-
 
 void priv_Vector_lshift(Vector *_vec, size_t _offset, size_t _it);
 void priv_Vector_rshift(Vector *_vec, size_t _offset, size_t _it);
