@@ -25,14 +25,19 @@ void Vector_destroy(Vector *_vec)
 
 void Vector_resize(Vector *_vec, size_t _size)
 {
+    VEC_INFO("Resize - entry", _vec);
     if (_vec->_rsize < _size) {
+        printf("[%s] Resize - 1 | required reserve\n", vec_str);
         Vector_reserve(_vec, _size);
         _vec->size = _size;
+        VEC_INFO("Resize - 1 | new size", _vec);
         return;
     } else if (_vec->_rsize > _size) {
+        printf("[%s] Resize - 2 | detruct %zu item\n", vec_str, _size - _vec->_rsize);
         for (size_t it = _vec->_rsize; it > _size; it--)
             _vec->_dtor(_vec->data + MEM_VEC_RSIZE(it, _vec));
         _vec->size = min(_size, _vec->size);
+        VEC_INFO("Resize - 2 | new size", _vec);
     }
 }
 
@@ -81,40 +86,54 @@ void Vector_swap(Vector *_vec, size_t _i1, size_t _i2)
 
 Type Vector_at(Vector *_vec, size_t _it)
 {
-    if (_it >= _vec->size)
+    VEC_INFO("At | accessing", _vec);
+    if (_it >= _vec->size) {
+        printf("[%s] At - 1 | raise: index: %zu\n", vec_str, _it);
+        VEC_INFO("At - 1 | raise:", _vec);
         raise(SIGSEGV);
+    }
+    printf("[%s] At - 2 | access item: %p, original address: %p\n", vec_str, _vec->data, _vec->data + _vec->_objsize * _it);
     return _vec->data + _vec->_objsize * _it;
 }
 
 void Vector_clear(Vector *_vec)
 {
+    VEC_INFO("Clear | start", _vec);
     while (_vec->size)
         Vector_erase(_vec, 0);
+    VEC_INFO("Clear | clear done", _vec);
 }
 
 void Vector_erase(Vector *_vec, size_t _it)
 {
     size_t itpos = MEM_VEC_RSIZE(_it, _vec);
 
+    VEC_INFO("Erase | start", _vec);
+    printf("[%s] Erase | index address offset: %zu, orignal: %zu\n", vec_str, itpos, _it);
     if (_it >= _vec->size) {
-        printf("raise %zu %zu\n", _it, _vec->size);
+        printf("[%s] Erase -1 | raise: index: %zu\n", vec_str, _it);
+        VEC_INFO("Erase - 1 | raise:", _vec);
         raise(SIGSEGV);
     }
-    printf("dtor = %p\n", _vec->_dtor);
+    printf("[%s] Resize - 2 | detruct item: %p, original address: %p\n", vec_str, _vec->data, _vec->data + itpos);
     _vec->_dtor(_vec->data + itpos);
-    priv_Vector_rshift(_vec, _it, 1);
+    priv_Vector_lshift(_vec, _it, 1);
     _vec->size--;
+    VEC_INFO("Erase - 2 | new size", _vec);
 }
 
 void priv_Vector_lshift(Vector *_vec, size_t _offset, size_t _it)
 {
+    VEC_INFO("PRIV lshift | start", _vec);
     size_t offset = MEM_VEC_RSIZE(_offset, _vec);
-    const size_t mem_objsize = _vec->_objsize / sizeof(void *);
+    printf("[%s] PRIV lshift | offset: %zu, orignal offset: %zu\n", vec_str, offset, _offset);
 
     for (size_t it = 1; it <= _it; it++) {
         size_t itpos = MEM_VEC_RSIZE(it, _vec);
+        printf("[%s] PRIV lshift | iteration: %zu, offset position: %zu\n", vec_str, it, itpos);
 
-        memcpy(_vec->data + offset + (itpos - mem_objsize), _vec->data + offset + itpos, _vec->_objsize);
+        printf("[%s] PRIV lshift | copy to: %p, copy from: %p, with size: %zu\n", vec_str, _vec->data + offset + MEM_VEC_RSIZE(it - 1, _vec), _vec->data + offset + itpos, _vec->_objsize);
+        memcpy(_vec->data + offset + MEM_VEC_RSIZE(it - 1, _vec), _vec->data + offset + itpos, _vec->_objsize);
     }
 }
 

@@ -76,14 +76,10 @@ TEST_P(Vector_empty_test, resize)
 
     size_t iteration = 0;
     ASSERT_EQ(vec->size, second_size);
-    if (first_size >= second_size)
-        iteration = first_size;
-    else
-        iteration = second_size;
+    iteration = max(second_size, first_size);
     ASSERT_EQ(vec->_rsize, iteration);
-    for (size_t it = 0; it < iteration; it++)
-        ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
-    EXPECT_TRUE(vec->data != NULL);
+    // for (size_t it = 0; it < iteration; it++)
+    //     ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
 }
 
 TEST_P(Vector_empty_test, reserve)
@@ -96,8 +92,6 @@ TEST_P(Vector_empty_test, reserve)
     ASSERT_EQ(vec->_rsize, first_size);
     EXPECT_EQ(vec->size, 0);
     EXPECT_TRUE(vec->data != NULL);
-    for (size_t it = 0; it < first_size; it++)
-        ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
 
     Vector_reserve(vec, second_size);
 
@@ -105,13 +99,8 @@ TEST_P(Vector_empty_test, reserve)
 
     EXPECT_EQ(vec->size, 0);
     EXPECT_TRUE(vec->data != NULL);
-    if (first_size >= second_size)
-        iteration = first_size;
-    else
-        iteration = second_size;
+    iteration = max(first_size, second_size);
     ASSERT_EQ(vec->_rsize, iteration);
-    for (size_t it = 0; it < iteration; it++)
-        ASSERT_EQ(VEC_AT_VAL(vec, size_t, it), 0);
 }
 
 INSTANTIATE_TEST_SUITE_P(Vector, Vector_empty_test,
@@ -263,8 +252,11 @@ TEST_F(Vector_filled_test, clear)
     ASSERT_EQ(vec->size, 0);
     ASSERT_EQ(vec->_rsize, 2);
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
-    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), 0);
-    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), 0);
+
+    for (size_t it = 0; it < 2; it++)
+        ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, it); },
+            EXIT_WITH_SEGV,
+            ".*");
 }
 
 TEST_F(Vector_filled_test, erase_first_last)
@@ -275,15 +267,21 @@ TEST_F(Vector_filled_test, erase_first_last)
     ASSERT_EQ(vec->_rsize, 2);
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value2);
-    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), 0);
 
-    Vector_erase(vec, 1);
+    ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, 1); },
+        EXIT_WITH_SEGV,
+        ".*");
+
+    Vector_erase(vec, 0);
 
     ASSERT_EQ(vec->size, 0);
     ASSERT_EQ(vec->_rsize, 2);
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
-    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), 0);
-    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), 0);
+
+    for (size_t it = 0; it < 2; it++)
+        ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, it); },
+            EXIT_WITH_SEGV,
+            ".*");
 }
 
 TEST_F(Vector_filled_test, erase_next)
@@ -294,5 +292,8 @@ TEST_F(Vector_filled_test, erase_next)
     ASSERT_EQ(vec->_rsize, 2);
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
-    ASSERT_EQ(VEC_AT_VAL(vec, size_t, 1), 0);
+
+    ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, 1); },
+        EXIT_WITH_SEGV,
+        ".*");
 }

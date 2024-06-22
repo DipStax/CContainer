@@ -5,10 +5,17 @@
 
 #include "CContainer/Type.h"
 
-#define MEM_VEC_RSIZE(_a, _v) ((_a) * (_v)->_objsize)
+const char *vec_str = "Vector";
 
-#define VEC_AT(_v, _t, _i) ((_t *)Vector_at(_v, _i))
-#define VEC_AT_VAL(_v, _t, _i) (*VEC_AT(_v, _t, _i))
+#define MEM_VEC_RSIZE(_a, _v)   ((_a) * (_v)->_objsize)
+
+#define VEC_AT(_v, _t, _i)      ((_t *)Vector_at(_v, _i))
+#define VEC_AT_VAL(_v, _t, _i)  (*VEC_AT(_v, _t, _i))
+
+// #define PRIV_VEC_AT(_v, _t, _i)     ((_t *)(_v->data + _v->_objsize * _i))
+// #define PRIV_VEC_AT_VAL(_v, _t, _i) (*PRIV_VEC_AT(_v, _t, _i))
+
+#define VEC_INFO(_s, _v) fprintf(stderr, "[%s] %s %s{ size: %zu, rsize: %zu, objsize: %zu }\n", vec_str, _s, vec_str, _v->size, _v->_rsize, _v->_objsize)
 
 typedef struct Vector_s
 {
