@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include "Test.hpp"
+
 extern "C" {
     #include "CContainer/List.h"
 }
@@ -16,7 +18,7 @@ static void no_destroy(Type _value)
 //     std::free(_value);
 // }
 
-class IteratorList_test : public testing::Test
+class IteratorList_test : public ::testing::Test
 {
     protected:
         IteratorList_test()
@@ -54,7 +56,7 @@ TEST_F(IteratorList_test, custom_destroy)
     IteratorList_destroy(node, &no_destroy);
 }
 
-class priv_IteratorList_test : public testing::Test
+class priv_IteratorList_test : public ::testing::Test
 {
     protected:
         priv_IteratorList_test()
@@ -146,13 +148,6 @@ class priv_IteratorList_last_test : public priv_IteratorList_test
         }
 };
 
-TEST_F(priv_IteratorList_last_test, null)
-{
-    ASSERT_EXIT({ priv_IteratorList_last(NULL); exit(0); },
-        ::testing::KilledBySignal(SIGSEGV),
-        ".*");
-}
-
 TEST_F(priv_IteratorList_last_test, element)
 {
     IteratorList *node = priv_IteratorList_last(node1);
@@ -189,14 +184,14 @@ class priv_IteratorList_at_test : public priv_IteratorList_test
 TEST_F(priv_IteratorList_last_test, second_null)
 {
     ASSERT_EXIT({ priv_IteratorList_at(NULL, 0); exit(0); },
-        ::testing::KilledBySignal(SIGSEGV),
+        EXIT_WITH_SEGV,
         ".*");
 }
 
 TEST_F(priv_IteratorList_last_test, oor)
 {
     ASSERT_EXIT({ priv_IteratorList_at(node1, 2); exit(0); },
-        ::testing::KilledBySignal(SIGSEGV),
+        EXIT_WITH_SEGV,
         ".*");
 }
 

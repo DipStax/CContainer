@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include "Test.hpp"
+
 extern "C" {
     #include "CContainer/List.h"
 }
@@ -16,7 +18,7 @@ static void destroy(Type _value)
     std::free(_value);
 }
 
-class List_test : public testing::Test
+class List_test : public ::testing::Test
 {
     protected:
 
@@ -166,7 +168,7 @@ class List_filled : public ::testing::Test
 TEST_F(List_filled, erase_oor)
 {
     ASSERT_EXIT({ List_erase(list, 3); exit(0); },
-        ::testing::KilledBySignal(SIGSEGV),
+        EXIT_WITH_SEGV,
         ".*");
 }
 
@@ -206,7 +208,7 @@ TEST_F(List_filled, erase_middle)
 TEST_F(List_filled, at_oor)
 {
     ASSERT_EXIT({ List_at(list, 3); exit(0); },
-        ::testing::KilledBySignal(SIGSEGV),
+        EXIT_WITH_SEGV,
         ".*");
 }
 
