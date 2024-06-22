@@ -3,10 +3,9 @@
 
 #include <stddef.h>
 
-typedef void *Type;
+#include "CContainer/Type.h"
 
 typedef struct IteratorList_s IteratorList;
-typedef void (*Fdtor)(Type _arg);
 
 struct IteratorList_s
 {

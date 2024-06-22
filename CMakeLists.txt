@@ -16,7 +16,7 @@ add_library(CContainer SHARED ${SRC_CC})
 
 set_target_properties(CContainer PROPERTIES
     C_STANDARD 17
-    C_EXTENSIONS OFF
+    C_EXTENSIONS ON
 )
 
 target_link_libraries(CContainer gcov)
