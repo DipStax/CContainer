@@ -254,7 +254,7 @@ TEST_F(Vector_filled_test, clear)
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
 
     for (size_t it = 0; it < 2; it++)
-        ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, it); },
+        ASSERT_EXIT({ (void)VEC_AT_VAL(vec, size_t, it); },
             EXIT_WITH_SEGV,
             ".*");
 }
@@ -268,7 +268,7 @@ TEST_F(Vector_filled_test, erase_first_last)
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value2);
 
-    ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, 1); },
+    ASSERT_EXIT({ (void)VEC_AT_VAL(vec, size_t, 1); },
         EXIT_WITH_SEGV,
         ".*");
 
@@ -279,7 +279,7 @@ TEST_F(Vector_filled_test, erase_first_last)
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
 
     for (size_t it = 0; it < 2; it++)
-        ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, it); },
+        ASSERT_EXIT({ (void)VEC_AT_VAL(vec, size_t, it); },
             EXIT_WITH_SEGV,
             ".*");
 }
@@ -293,7 +293,7 @@ TEST_F(Vector_filled_test, erase_next)
     ASSERT_EQ(vec->_objsize, sizeof(size_t));
     ASSERT_EQ(VEC_AT_VAL(vec, size_t, 0), literal_value1);
 
-    ASSERT_EXIT({ VEC_AT_VAL(vec, size_t, 1); },
+    ASSERT_EXIT({ (void)VEC_AT_VAL(vec, size_t, 1); },
         EXIT_WITH_SEGV,
         ".*");
 }
