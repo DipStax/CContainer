@@ -19,12 +19,11 @@ const char *vec_str = "Vector";
 
 typedef struct Vector_s
 {
-    void *data;
+    Type data;
     size_t size;
     size_t _objsize;
     size_t _rsize;
     Fdtor _dtor;
-    void *_swap;
 } Vector;
 
 Vector *Vector_create(size_t _objsize, Fdtor _dtor);
